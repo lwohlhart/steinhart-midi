@@ -2,7 +2,10 @@
 class State
 {
 	public:
-		State();
-		int faderValues[8];
+		State(int pin);
+		int values[8];
+		int updateValue(int valueIndex);
+	private:
+		int pinID;
 };
 
