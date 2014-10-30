@@ -16,6 +16,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="SteinhartMidi.ino" />
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Visual Micro\.SteinhartMidi.vsarduino.h">
