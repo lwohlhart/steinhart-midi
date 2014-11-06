@@ -74,10 +74,14 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Sequence.h" />
+    <ClInclude Include="SequencerEngine.h" />
     <ClInclude Include="State.h" />
     <ClInclude Include="Visual Micro\.SteinhartMidi.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Sequence.cpp" />
+    <ClCompile Include="SequencerEngine.cpp" />
     <ClCompile Include="State.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
