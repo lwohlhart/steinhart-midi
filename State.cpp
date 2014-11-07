@@ -2,35 +2,26 @@
 #include <Arduino.h>
 State::State()
 {
-	values[0] = 0;
-	previousReturnValues[0] = 0;
+	
 }
 
 int State::updateValue(int valueIndex)
 {
 	values[valueIndex] = analogRead(pinID);
-	if (valueIndex == 0)
+	if (binary[valueIndex])
+	{	
+		int temp = ((values[valueIndex] & 512) ? 127 : 0);
+		if (temp != previousReturnValues[valueIndex])
+			return previousReturnValues[valueIndex] = temp;
+		else
+			return -1;
+	}else
 	{
-		/*
-		Serial.print(values[valueIndex]);
-		Serial.print(" cc = ");
-		Serial.println(levelToCC(values[valueIndex]));
-		*/
+		if ((values[valueIndex] < (ccToLevel(previousReturnValues[valueIndex]) - 2)) || (values[valueIndex] > (ccToLevel(previousReturnValues[valueIndex] + 1) + 1)))
+			return previousReturnValues[valueIndex] = levelToCC(values[valueIndex]);
+		else
+			return -1;
 	}
-	// - 2 means a conservative threshold that reduces bouncing values at the edges of each cc-value
-
-	
-		/*
-	if ((values[valueIndex] < ((previousReturnValues[valueIndex] << 3) - 2)) || (values[valueIndex] > (((previousReturnValues[valueIndex] + 1) << 3) + 1)))
-		return previousReturnValues[valueIndex] = (values[valueIndex] >> 3);
-	else
-		return -1;
-		*/
-
-	if ((values[valueIndex] < (ccToLevel(previousReturnValues[valueIndex]) - 2)) || (values[valueIndex] > (ccToLevel(previousReturnValues[valueIndex] + 1) + 1)))
-		return previousReturnValues[valueIndex] = levelToCC(values[valueIndex]);
-	else
-		return -1;
 }
 
 int State::levelToCC(int level) // custom mapping of voltage levels 0-1023 to CC values 0-127
@@ -52,4 +43,17 @@ int State::ccToLevel(int cc) // custom mapping of cc values 0-127 to voltage lev
 		return 1020;
 	else
 		return ((cc - 1) * 8.095 + 3);
+}
+
+void State::setBinary(bool bin)
+{
+	for (int i = 0; i < 8; i++)
+	{
+		binary[i] = bin;
+	}
+}
+
+void State::setBinary(bool bin, int index)
+{
+	binary[index] = bin;
 }

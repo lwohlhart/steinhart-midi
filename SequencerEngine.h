@@ -4,7 +4,6 @@ class SequencerEngine
 {
 public:
 	SequencerEngine();
-	~SequencerEngine();
 	Sequence sequences[16];
 	int selectedSequenceIndex;
 	bool shiftDown;

@@ -8,11 +8,6 @@ SequencerEngine::SequencerEngine()
 }
 
 
-SequencerEngine::~SequencerEngine()
-{
-}
-
-
 void SequencerEngine::buttonDown(int buttonIndex)
 {
 	if (shiftDown)
@@ -36,8 +31,8 @@ void SequencerEngine::encoderValueChange(int deltaValue)
 		unsigned char noteLength = sequences[selectedSequenceIndex].getCurrentNoteLength();
 		noteLength = (deltaValue < 0) ? noteLength >> 1 : noteLength << 1;
 		sequences[selectedSequenceIndex].setCurrentNoteLength(noteLength);
-		Serial.print("new noteLength: ");
-		Serial.println((int) sequences[selectedSequenceIndex].getCurrentNoteLength());
+		//Serial.print("new noteLength: ");
+		//Serial.println((int) sequences[selectedSequenceIndex].getCurrentNoteLength());
 	}
 	else
 	{
