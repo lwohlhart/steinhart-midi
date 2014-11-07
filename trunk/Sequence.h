@@ -5,7 +5,6 @@ class Sequence
 {
 public:
 	Sequence();
-	~Sequence();
 	double swing;
 	unsigned char notes[SEQUENCE_ENTRIES];
 	char messages[SEQUENCE_ENTRIES];

@@ -33,19 +33,19 @@ MIDI_CREATE_DEFAULT_INSTANCE();
 	Pins 0-7 
 */
 const char _ccNumberByGlobalMuxPinID[32] = { 16, 24, 25, 17, 26, 18, 27, 19, 20, 28, 29, 21, 30, 22, 31, 23, 0, 8, 9, 1, 10, 2, 11, 3, 4, 12, 13, 5, 14, 6, 15, 7 };
-const char _ledIndexByID[32] =	{ 7, 5, 2, 1, 8, 13, 12, 9, 6, 4, 3, 0, 10, 15, 14, 11, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31 };
+const char _buttonIDByGlobalMuxPinID[32] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31 }; // todo  enter correct ids
+const char _ledIndexByID[32] =	{ 7, 5, 2, 1, 8, 13, 12, 9, 6, 4, 3, 0, 10, 15, 14, 11, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31 }; // todo update after Romans workover
+
 bool _ledStates[32] =			{ 0, 0, 0, 0, 0,  0,  0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  0,  0,  0,  0,  0 };
-// 
+unsigned long buttonLongPressStartTime[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+
 char _selectedMuxChannel = 0;
 State muxStates[8];
 
 SequencerEngine sequencer;
+DrumRackEngine drumRack;
 
-
-int _loop_count = 0;
-int _notes[8] = {36,37,38,39,40,40,41,41};
-int _notePos = 0;
-int _midiClockCycle = 0;
 
 void setup()
 {
@@ -71,13 +71,29 @@ void setup()
 	flushLedStates();
 
 	muxStates[0].pinID = MUX_INPUT_PIN_1;
+	muxStates[0].setBinary(true, 1);		// set the switches to binary {0,127}
+	muxStates[0].setBinary(true, 2);
+	muxStates[0].setBinary(true, 4);
+	muxStates[0].setBinary(true, 6);
 	muxStates[1].pinID = MUX_INPUT_PIN_2;
+	muxStates[1].setBinary(true, 1);		// set the switches to binary {0,127}
+	muxStates[1].setBinary(true, 2);
+	muxStates[1].setBinary(true, 4);
+	muxStates[1].setBinary(true, 6);
 	muxStates[2].pinID = MUX_INPUT_PIN_3;
 	muxStates[3].pinID = MUX_INPUT_PIN_4;
+
 	muxStates[4].pinID = MUX_INPUT_PIN_5;
+	muxStates[4].setBinary(true);			// make button mux binary
 	muxStates[5].pinID = MUX_INPUT_PIN_6;
+	muxStates[5].setBinary(true);			// make button mux binary
 	muxStates[6].pinID = MUX_INPUT_PIN_7;
+	muxStates[6].setBinary(true);			// make button mux binary
 	muxStates[7].pinID = MUX_INPUT_PIN_8;
+	muxStates[7].setBinary(true);			// make button and tristate mux binary
+	muxStates[7].setBinary(false, 1);		// make actionButton-Potentiometers non-binary
+	muxStates[7].setBinary(false, 2);		// make actionButton-Potentiometers non-binary
+
 	Serial.begin(115200);
 	sequencer.buttonDown(0);
 	sequencer.buttonDown(1);
@@ -113,12 +129,56 @@ void setup()
 
 void loop()
 {
-
-}
-void shit()
-{	
 	//MIDI.read();
-	for (int i = 0; i < 4; i++)  //   parse mux 0-3 
+	readButtonStates();
+	_selectedMuxChannel = (_selectedMuxChannel + 1) % 8;
+	selectMuxChannel(_selectedMuxChannel);
+}
+
+void readButtonStates()
+{
+	for (int i = 4; i <= 7; i++)  //   parse mux 4-7 (binary muxes: Buttons and Tristate)
+	{
+		int globalButtonId = _buttonIDByGlobalMuxPinID[(i - 4) * 8 + _selectedMuxChannel];
+		int buttonAction = muxStates[i].updateValue(_selectedMuxChannel);
+		if (buttonAction != -1) // buttonAction -1: nothing, 0: buttonUp, 127: buttonDown
+		{
+			if (buttonAction == 0)
+			{
+				Serial.print("buttonUp : ");
+				Serial.println(globalButtonId);
+				if (globalButtonId < 16) // sequencer-button
+				{
+					buttonLongPressStartTime[globalButtonId] = 0;
+				}
+			}
+			else if (buttonAction > 0)
+			{
+				Serial.print("buttonDown : ");
+				Serial.println(globalButtonId);
+				if (globalButtonId < 16) // sequencer-button
+				{
+					buttonLongPressStartTime[globalButtonId] = millis();
+				}
+			}
+		}
+
+		if ((globalButtonId < 16) && (buttonLongPressStartTime[globalButtonId] > 0)) // sequencer-button is down and we have to detect a longpress event
+		{
+			if ((unsigned long)(millis() - buttonLongPressStartTime[globalButtonId]) >= 1500)
+			{
+				buttonLongPressStartTime[globalButtonId] = 0;
+				// button longPressEvent
+				Serial.print("buttonLongPress : ");
+				Serial.println(globalButtonId);
+			}
+		}
+	}
+}
+
+void processCCValues()
+{
+	for (int i = 0; i <= 3; i++)  //   parse mux 0-3 
 	{
 		int changedValue = muxStates[i].updateValue(_selectedMuxChannel);
 		if (changedValue != -1)
@@ -131,19 +191,6 @@ void shit()
 		}
 	}
 
-	_selectedMuxChannel = (_selectedMuxChannel + 1) % 8;
-	selectMuxChannel(_selectedMuxChannel);
-	//MIDI.sendNoteOn(36, 127, 1);  // Send a Note (pitch 42, velo 127 on channel 1)		
-	//MIDI.sendNoteOff(36, 0, 1);   // Stop the note	
-	
-	/*int mask = 128;
-	for (size_t i = 0; i < 8; i++)
-	{
-		Serial.print((cc&mask) ? 1 : 0);
-		mask >>= 1;
-	}*/
-	//Serial.println(cc);	
-	//startCallback()
 }
 
 void updateRotaryEncoder() {
@@ -186,6 +233,7 @@ void noteOnCallback(byte channel, byte note, byte velocity)
 
 void clockCallback()
 {
+	/*
 	_midiClockCycle++;
 	if (_midiClockCycle % 24 == 0)
 	{	
@@ -193,12 +241,11 @@ void clockCallback()
 			MIDI.sendNoteOff(_notes[_notePos], 0, 1);   // Stop the note	
 		_notePos = (_notePos + 1) % 8;
 		MIDI.sendNoteOn(_notes[_notePos], 127, 1);  // Send a Note (pitch 42, velo 127 on channel 1)				
-	}
+	}*/
 }
 
 void startCallback()
 {
-	_midiClockCycle = -1;
-	_notePos = -1;
+	
 	//clockCallback();
 }

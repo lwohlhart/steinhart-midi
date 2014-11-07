@@ -31,6 +31,9 @@
     <ClInclude Include="Sequence.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DrumRackEngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="State.cpp">
@@ -40,6 +43,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Sequence.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DrumRackEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

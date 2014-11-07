@@ -9,9 +9,6 @@ Sequence::Sequence()
 	active = false;
 }
 
-Sequence::~Sequence()
-{
-}
 
 int Sequence::toggleNote(int noteIndex)
 {
@@ -79,7 +76,6 @@ void Sequence::updateMessages()
 		}
 	}
 }
-
 
 
 void Sequence::updateLeds()
