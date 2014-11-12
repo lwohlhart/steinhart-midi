@@ -9,8 +9,7 @@ Sequence::Sequence()
 	active = false;
 }
 
-
-int Sequence::toggleNote(int noteIndex)
+void Sequence::toggleNote(char noteIndex)
 {
 	bool free = true;
 	int ind = noteIndex * _currentNoteLength;
@@ -36,8 +35,7 @@ int Sequence::toggleNote(int noteIndex)
 		}
 	}
 	updateMessages();
-	updateLeds();
-	return 0;
+	updateLeds();	
 }
 
 

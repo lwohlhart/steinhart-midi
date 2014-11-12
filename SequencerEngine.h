@@ -5,7 +5,7 @@ class SequencerEngine
 public:
 	SequencerEngine();
 	Sequence sequences[16];
-	int selectedSequenceIndex;
+	char selectedSequenceIndex;
 	bool shiftDown;
 	void buttonDown(int buttonIndex);
 	void buttonLongPress(int buttonIndex);
