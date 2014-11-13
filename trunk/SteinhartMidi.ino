@@ -48,6 +48,7 @@ State _muxStates[8];
 
 SequencerEngine _sequencer;
 DrumRackEngine _drumRack;
+ 
 
 
 void setup()
@@ -161,6 +162,7 @@ void processButtonEventsAndStateSettings()
 			{
 				Serial.print("buttonUp : ");
 				Serial.println(globalButtonId);
+
 				if (globalButtonId < 16) // sequencer-button
 				{
 					_buttonLongPressStartTime[globalButtonId] = 0;
