@@ -7,7 +7,7 @@ DrumRackEngine::DrumRackEngine()
 {
 
 	octave = 0;
-	velocity = 0;
+	velocity = 127;
 }
 
 
@@ -61,7 +61,14 @@ char* DrumRackEngine::releaseAll()
 
 void DrumRackEngine::encoderValueChange(int deltaValue)
 {
-	octave = max(min(octave + deltaValue, 8), 0);
+	if (shiftDown)
+	{
+		octave = max(min(octave + deltaValue, 8), 0);
+	}
+	else
+	{
+		velocity = max(min(velocity + deltaValue*8, 127), 0);
+	}
 	updateLEDs();
 }
 
@@ -77,5 +84,12 @@ void DrumRackEngine::updateLEDs()
 		ledStates[17] = octave & 4;
 		ledStates[18] = octave & 2;
 		ledStates[19] = octave & 1;
+	}
+	else
+	{
+		ledStates[16] = (velocity > 0);
+		ledStates[17] = (velocity > 32);
+		ledStates[18] = (velocity > 64);
+		ledStates[19] = (velocity > 96);
 	}
 }

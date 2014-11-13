@@ -74,6 +74,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ActionButtonEngine.h" />
     <ClInclude Include="DrumRackEngine.h" />
     <ClInclude Include="Sequence.h" />
     <ClInclude Include="SequencerEngine.h" />
@@ -81,6 +82,7 @@
     <ClInclude Include="Visual Micro\.SteinhartMidi.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ActionButtonEngine.cpp" />
     <ClCompile Include="DrumRackEngine.cpp" />
     <ClCompile Include="Sequence.cpp" />
     <ClCompile Include="SequencerEngine.cpp" />
