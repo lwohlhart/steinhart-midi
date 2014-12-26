@@ -5,7 +5,7 @@ public:
 	ActionButtonEngine();
 	~ActionButtonEngine();
 	void buttonDown(char buttonID);
-	void value1Change(int newvValue);
+	void value1Change(int newValue);
 	void value2Change(int newValue);
 	bool active;
 	char* getCCValues(unsigned long time);
