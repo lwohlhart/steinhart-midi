@@ -50,7 +50,7 @@ char* ActionButtonEngine::getCCValues(unsigned long time)
 			}
 			else	//ramps
 			{
-				values[i] = 
+				values[i] = 63;// todo
 			}
 			if (values[i] == _previousCCValues[i])
 				values[i] = -1;
