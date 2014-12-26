@@ -25,9 +25,9 @@ void ActionButtonEngine::buttonDown(char buttonID)
 	active = (_activeButtons[0] || _activeButtons[1] || _activeButtons[2] || _activeButtons[3]);
 }
 
-void ActionButtonEngine::value1Change(int newvValue)
+void ActionButtonEngine::value1Change(int newValue)
 {
-	_values1[_selectedButton] = newvValue;
+	_values1[_selectedButton] = newValue;
 }
 
 void ActionButtonEngine::value2Change(int newValue)
@@ -44,10 +44,13 @@ char* ActionButtonEngine::getCCValues(unsigned long time)
 		{
 			unsigned long passedTime = time - _activationTimes[i];
 			if (i < 2)  // LFOs
-				values[i] = 63 + (_values1[i] >> 1)*sin(passedTime / 1000 * _values2[i]); // todo   actually   make it frequencies[_values2[i]] and make frequency-table
+			{
+				// 0.00628318530717958647692528676656 = 1/1000*2*PI
+				values[i] = 63 + (_values1[i] >> 1)*sin(passedTime * 0.00628318530717958647692528676656 * _values2[i]); // todo   actually   make it frequencies[_values2[i]] and make frequency-table
+			}
 			else	//ramps
 			{
-				
+				values[i] = 
 			}
 			if (values[i] == _previousCCValues[i])
 				values[i] = -1;
