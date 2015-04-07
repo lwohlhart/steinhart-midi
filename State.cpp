@@ -10,7 +10,7 @@ int State::updateValue(int valueIndex)
 	values[valueIndex] = analogRead(pinID);
 	if (binary[valueIndex])
 	{	
-		int temp = ((values[valueIndex] & 512) ? 127 : 0);
+		int temp = (previousReturnValues[valueIndex] == 0) ? ((values[valueIndex] > 300) ? 127 : 0) : ((values[valueIndex] == 0) ? 0 : 127);
 		if (temp != previousReturnValues[valueIndex])
 			return previousReturnValues[valueIndex] = temp;
 		else

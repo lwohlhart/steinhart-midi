@@ -83,7 +83,10 @@ void Sequence::updateLeds()
 		if (notes[i] != 0)
 			ledStates[(int)i / _currentNoteLength] = 1;
 	}
-
+	ledStates[16] = (_currentNoteLength >= 1);
+	ledStates[17] = (_currentNoteLength >= 2);
+	ledStates[18] = (_currentNoteLength >= 4);
+	ledStates[19] = (_currentNoteLength >= 8);
 }
 
 unsigned char Sequence::getCurrentNoteLength()
@@ -91,8 +94,10 @@ unsigned char Sequence::getCurrentNoteLength()
 	return _currentNoteLength;
 }
 
-void Sequence::setCurrentNoteLength(unsigned char newNoteLength)
+void Sequence::changeCurrentNoteLength(int delta)
 {
+	unsigned char newNoteLength = _currentNoteLength;
+	newNoteLength = (delta < 0) ? newNoteLength >> 1 : newNoteLength << 1;
 	_currentNoteLength = max(min(newNoteLength,8),1);
 	updateLeds();
 }

@@ -15,7 +15,7 @@ public:
 	void clear();
 	void updateMessages();
 	unsigned char getCurrentNoteLength();
-	void setCurrentNoteLength(unsigned char newNoteLength);
+	void changeCurrentNoteLength(int delta);
 private:
 	unsigned char _currentNoteLength; // 8,4,2,1 (1/4, 1/8, 1/16, 1/32)
 	void updateLeds();
