@@ -14,8 +14,9 @@ public:
 	char* buttonUp(char buttonIndex);
 	char* releaseAll();
 	void encoderValueChange(int deltaValue);
+	void updateLedStates(char* ledStates, const char* ledIndices);
 private:
 	bool activatedNotes[128];
-	void updateLEDs();
+	int _octaveInterpolation;
 };
 

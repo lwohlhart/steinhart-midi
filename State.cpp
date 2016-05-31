@@ -2,7 +2,14 @@
 #include <Arduino.h>
 State::State()
 {
-	
+	previousReturnValues[0] = 0;
+	previousReturnValues[1] = 0;
+	previousReturnValues[2] = 0;
+	previousReturnValues[3] = 0;
+	previousReturnValues[4] = 0;
+	previousReturnValues[5] = 0;
+	previousReturnValues[6] = 0;
+	previousReturnValues[7] = 0;	
 }
 
 int State::updateValue(int valueIndex)
@@ -10,9 +17,16 @@ int State::updateValue(int valueIndex)
 	values[valueIndex] = analogRead(pinID);
 	if (binary[valueIndex])
 	{	
-		int temp = (previousReturnValues[valueIndex] == 0) ? ((values[valueIndex] > 300) ? 127 : 0) : ((values[valueIndex] == 0) ? 0 : 127);
+		int temp; 
+		if(previousReturnValues[valueIndex] == 0) // button is in up-state and can detect down
+			temp = ((values[valueIndex] > 150) ? 127 : 0);
+		else
+			temp = ((values[valueIndex] < 50) ? 0 : 127);
 		if (temp != previousReturnValues[valueIndex])
-			return previousReturnValues[valueIndex] = temp;
+		{
+			previousReturnValues[valueIndex] = temp;
+			return temp;
+		}
 		else
 			return -1;
 	}else

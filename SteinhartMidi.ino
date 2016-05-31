@@ -1,9 +1,3 @@
-/*#include <midi_Settings.h>
-#include <midi_Namespace.h>
-#include <midi_Message.h>
-#include <midi_Defs.h>
-#include <MIDI.h>*/
-//#include "../Arduino_MIDI_Library_v4.2/MIDI/MIDI.h"
 #include "C:\Lucas\Studium\Bakk Arbeit\Workspace\libraries\MIDI\MIDI.h"
 #include "C:\Lucas\Studium\Bakk Arbeit\Workspace\libraries\MIDI\midi_Settings.h"
 #include "C:\Lucas\Studium\Bakk Arbeit\Workspace\libraries\MIDI\midi_Namespace.h"
@@ -12,8 +6,10 @@
 #include "State.h"
 #include "SequencerEngine.h"
 #include "DrumRackEngine.h"
+#include "ArpeggiatorEngine.h"
+#include "ActionButtonEngine.h"
 
-
+USING_NAMESPACE_MIDI
 MIDI_CREATE_DEFAULT_INSTANCE();
 
 #define ENCODER_PIN_A  2
@@ -39,26 +35,47 @@ MIDI_CREATE_DEFAULT_INSTANCE();
 #define MUX_INPUT_PIN_7 A6
 #define MUX_INPUT_PIN_8 A2
 
+#define SEQUENCER_MIDI_CHANNEL 5
+#define DRUM_RACK_MIDI_CHANNEL 5
+#define CC_MIDI_CHANNEL 4
+
+#define C1_OFFSET 36
+
 #define LED 13   		    // LED pin on Arduino Uno
+
+#define ENCODER_R_LED_INDEX 8
+#define ENCODER_G_LED_INDEX 9
+#define ENCODER_B_LED_INDEX 10
+
+#define SHIFT_LED_INDEX 11
+#define PLAY_LED_INDEX 12
 /*	LED SHIFT PINS   { 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32 };
 	Pins 0-7 
 */
-// old because cc shouldnt have 0's const char _ccNumberByGlobalMuxPinID[32] = { 16, 24, 25, 17, 26, 18, 27, 19, 20, 28, 29, 21, 30, 22, 31, 23, 0, 8, 9, 1, 10, 2, 11, 3, 4, 12, 13, 5, 14, 6, 15, 7 };
 const char _ccNumberByGlobalMuxPinID[32] = { 17, 25, 26, 18, 27, 19, 28, 20, 21, 29, 30, 22, 31, 23, 32, 24, 1, 9, 10, 2, 11, 3, 12, 4, 5, 13, 14, 6, 15, 7, 16, 8 };
-const char _buttonIDByGlobalMuxPinID[32] = {	 8,  0, 1, 9, 2, 10, 3, 11, 12,  4,  5, 13,  6, 14,  7, 15, 40,	 40,  40, 40,  16, 17,  18, 19, 20, 21, 40, 40, 40, 40, 40, 40 }; // todo  enter correct ids
-const char _ledIndexByID[32] =	{ 7, 5, 2, 1, 8, 13, 12, 9, 6, 4, 3, 0, 10, 15, 14, 11, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31 }; // todo update after Romans workover
+const char _buttonIDByGlobalMuxPinID[32] = { 8,  0, 1, 9, 2, 10, 3, 11, 12,  4,  5, 13,  6, 14,  7, 15, 40,	 40,  40, 40,  16, 18, 19, 17, 20, 21, 40, 40, 40, 40, 40, 40 }; // todo  enter correct ids
+//const char _ledIndexByID[32] =	{ 7, 5, 2, 1, 8, 13, 12, 9, 6, 4, 3, 0, 10, 15, 14, 11, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31 }; // todo update after Romans workover
+const char _ledIndexByID[32] = { 23, 21, 18, 17, 24, 29, 28, 25, 22, 20, 19, 16, 26, 31, 30, 27, 0, 1, 2, 3, ENCODER_R_LED_INDEX, ENCODER_G_LED_INDEX, ENCODER_B_LED_INDEX, 4, 5, 6, 7, SHIFT_LED_INDEX, PLAY_LED_INDEX, 13, 14, 15 };
 
-bool _ledStates[32] =			{ 0, 0, 0, 0, 0,  0,  0, 0, 0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 };
+
+char _ledStates[32] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 unsigned long _buttonLongPressStartTime[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 
-char _selectedMuxChannel = 0;
-char _selectedEngine = 0;
+unsigned int _selectedMuxChannel = 0;
+unsigned int _selectedEngine = 0;
 State _muxStates[8];
 
 SequencerEngine _sequencer;
 DrumRackEngine _drumRack;
- 
+ArpeggiatorEngine _arpEngine;
+
+ActionButtonEngine _actionEngine;
+
+bool _playing = false;
+
+int _midiClockPosition = 0;
+long _tempTime = 0;
 
 
 void setup()
@@ -106,9 +123,10 @@ void setup()
 	_muxStates[6].setBinary(false, 1);	// make actionButton-Potentiometers non-binary
 	_muxStates[6].setBinary(false, 2);	// make actionButton-Potentiometers non-binary
 	_muxStates[7].pinID = MUX_INPUT_PIN_8;
-	_muxStates[7].setBinary(true);			// make button and tristate mux binary
+	_muxStates[7].setBinary(true);			// make shiftbutton and playbutton mux binary
 
-	MIDI.begin();	//Serial.begin(31250);
+	MIDI.begin();	
+	//Serial.begin(31250);
 	/*_sequencer.buttonDown(0);
 	_sequencer.buttonDown(1);
 	_sequencer.buttonDown(1);
@@ -130,50 +148,120 @@ void setup()
 		Serial.print("|");
 	}
 	Serial.println("");
+	_sequencer.buttonDown(1);	
+	_sequencer.buttonDown(4);
+	_sequencer.buttonDown(5);
 	*/
 
-	/*
+	
 	MIDI.setHandleClock(clockCallback);
 	MIDI.setHandleStart(startCallback);
-	*/
+	MIDI.setHandleStop(stopCallback);
+	MIDI.setHandleContinue(continueCallback);
+	
 	//MIDI.setHandleNoteOn(noteOnCallback);
 	//MIDI.setInputChannel(1);	
 }
 
-int temp_led_value = 0;
-
 void loop()
 {
-	//MIDI.read();
+	MIDI.read();
 	processCCValues();
 	processButtonEventsAndStateSettings();
+	processActionEngine();
 	_selectedMuxChannel = (_selectedMuxChannel + 1) % 8;
 	selectMuxChannel(_selectedMuxChannel);
-	if (_selectedMuxChannel == 0)
-	{	
-		// whatever/wherever the encoding of the tristate might be
-		if (_muxStates[6].values[0] > 60)
-			_selectedEngine = 0;
-		else if (_muxStates[6].values[3] > 60)
-			_selectedEngine = 2;
-		else		
-			_selectedEngine = 1;		
-	}
-
-	for (int i = 0; i < 32; i++)
+	
+	/*if (millis() - _tempTime > 20)
 	{
-		_ledStates[i] = (i*4 < temp_led_value);
+		clockCallback();
+		_tempTime = millis();
+	}*/
+	if (_selectedMuxChannel == 0)
+	{
+		bool shiftDown = (_muxStates[7].values[0] > 60);
+		_sequencer.shiftDown = shiftDown;
+		_drumRack.shiftDown = shiftDown;
+		//_arpeggiator.shiftDown = shiftDown;
+		char tempEngine = _selectedEngine;
+		if (_muxStates[6].values[0] > 60)
+		{
+			_selectedEngine = 0;
+			_sequencer.updateLedStates(_ledStates, _ledIndexByID);
+		}
+		else if (_muxStates[6].values[3] > 60)
+		{
+			_selectedEngine = 2;
+			//_arpeggiator.updateLedStates(_ledStates);
+		}
+		else
+		{
+			_selectedEngine = 1;
+			_drumRack.updateLedStates(_ledStates, _ledIndexByID);
+		}
+		if (tempEngine != _selectedEngine)
+		{
+			switch (tempEngine)
+			{
+			case 0:
+				break;
+			case 1:
+			{
+				releaseDrumRackNotes(_drumRack.releaseAll());
+				break;
+			}
+			case 2:
+				break;
+			default:
+				break;
+			}
+			/*Serial.print("new engine selected :");
+			Serial.print((int)_selectedEngine);
+			Serial.println();
+			*/
+		}
+		updateGeneralLeds();		
+		flushLedStates();
 	}
-	int time = 16431240 >> 3*((millis() / 800) % 8);
-	updateRotaryEngineIndicatorColor(_selectedEngine);
-	flushLedStates();
 }
 
-void updateRotaryEngineIndicatorColor(int engine)
+void updateGeneralLeds()
 {
-	_ledStates[8] = (engine != 0);
-	_ledStates[9] = (engine != 1);
-	_ledStates[10] = (engine != 2);
+	_actionEngine.updateLedStates(_ledStates, _ledIndexByID);
+	_ledStates[ENCODER_R_LED_INDEX] = 0;
+	_ledStates[ENCODER_G_LED_INDEX] = 0;
+	_ledStates[ENCODER_B_LED_INDEX] = 0;
+	_ledStates[SHIFT_LED_INDEX] = 0;
+	switch (_selectedEngine)
+	{
+	case 0:
+		_ledStates[ENCODER_R_LED_INDEX] = 1;
+		if (_sequencer.shiftDown)
+		{
+			_ledStates[ENCODER_B_LED_INDEX] = 2;
+			_ledStates[SHIFT_LED_INDEX] = 1;
+		}
+		break;
+	case 1:
+		_ledStates[ENCODER_G_LED_INDEX] = 1;
+		if (_drumRack.shiftDown)
+		{
+			_ledStates[ENCODER_R_LED_INDEX] = 2;
+			_ledStates[SHIFT_LED_INDEX] = 1;
+		}
+		break;
+	case 2:
+		_ledStates[ENCODER_B_LED_INDEX] = 1;
+		if (_drumRack.shiftDown) // //if (_arpeggiator.shiftDown)
+		{
+			_ledStates[ENCODER_G_LED_INDEX] = 2;
+			_ledStates[SHIFT_LED_INDEX] = 1;
+		}
+		break;
+	default:
+		break;
+	}
+	_ledStates[PLAY_LED_INDEX] = (_playing) ? 1 : 0;
 }
 
 void processButtonEventsAndStateSettings()
@@ -183,33 +271,88 @@ void processButtonEventsAndStateSettings()
 		int globalButtonId = _buttonIDByGlobalMuxPinID[(i - 4) * 8 + _selectedMuxChannel];		
 		int buttonAction = _muxStates[i].updateValue(_selectedMuxChannel);
 		if (buttonAction != -1) // buttonAction -1: nothing, 0: buttonUp, 127: buttonDown
-		{
-			if (buttonAction == 0)
+		{		
+			if (i == 6)
 			{
-				//temp_led_value = 0;  // test
-				/*Serial.print("buttonUp : ");
-				Serial.print(globalButtonId);
-				Serial.print(" mux");
-				Serial.print(i);
-				Serial.print(" channel");
-				Serial.println((int) _selectedMuxChannel);*/
+				// action button engine Potis
+				if(_selectedMuxChannel == 1)
+				{ 				
+					_actionEngine.value1Change(buttonAction);					
+					continue;
+				}
+				else if (_selectedMuxChannel == 2)
+				{
+					_actionEngine.value2Change(buttonAction);					
+					continue;
+				}
+
+			}
+			if (buttonAction == 0)
+			{							
+				//Serial.print("buttonUp : "); Serial.print(globalButtonId); Serial.print(" mux"); Serial.print(i); Serial.print(" channel"); Serial.println((int) _selectedMuxChannel);
 				if (globalButtonId < 16) // sequencer-button
 				{
+					switch (_selectedEngine)
+					{
+					case 0: // Sequencer
+						//_sequencer.buttonUp(globalButtonId);
+						break;
+					case 1: // Drumrack
+					{
+						releaseDrumRackNotes(_drumRack.buttonUp(globalButtonId));
+						break;
+					}
+					case 2: // Arpeggiator
+
+						break;
+					default:
+						break;
+					}
 					_buttonLongPressStartTime[globalButtonId] = 0;
+				}else
+				{					
 				}
 			}
 			else if (buttonAction > 0)
 			{
-				//temp_led_value = 127;  // test
-				/*Serial.print("buttonDown : ");
-				Serial.print(globalButtonId);
-				Serial.print(" mux");
-				Serial.print(i);
-				Serial.print(" channel");
-				Serial.println((int) _selectedMuxChannel);*/
+				/*Serial.print("buttonDown : "); Serial.print(globalButtonId); Serial.print(" mux"); Serial.print(i); Serial.print(" channel"); Serial.println((int) _selectedMuxChannel);*/
 				if (globalButtonId < 16) // sequencer-button
 				{
+					switch (_selectedEngine)
+					{
+					case 0: // Sequencer
+						_sequencer.buttonDown(globalButtonId);
+						break;
+					case 1: // Drumrack
+					{
+						char drumRackPressMessage = _drumRack.buttonDown(globalButtonId);
+						MIDI.sendNoteOn((midi::DataByte) drumRackPressMessage, (midi::DataByte) _drumRack.velocity, (midi::Channel) DRUM_RACK_MIDI_CHANNEL);
+						break;
+					}
+					case 2: // Arpeggiator
+
+						break;
+					default:
+						break;
+					}
 					_buttonLongPressStartTime[globalButtonId] = millis();
+				}
+				else
+				{
+					//Serial.println(globalButtonId);
+					if (globalButtonId == 21)
+					{
+						_playing = !_playing;
+						if (_playing)
+							MIDI.sendRealTime((midi::MidiType) midi::Start);
+						else
+							MIDI.sendRealTime((midi::MidiType) midi::Stop);
+					}
+					else
+					{
+						_actionEngine.buttonDown(globalButtonId);
+						//Serial.println(globalButtonId);
+					}
 				}
 			}
 		}
@@ -220,10 +363,23 @@ void processButtonEventsAndStateSettings()
 			{
 				_buttonLongPressStartTime[globalButtonId] = 0;
 				// button longPressEvent
-				/*Serial.print("buttonLongPress : ");
-				Serial.println(globalButtonId);*/
+				if(_selectedEngine == 0)
+				{
+					_sequencer.buttonLongPress(globalButtonId); // clear sequence
+				}
+				//Serial.print("buttonLongPress : "); Serial.println(globalButtonId);
 			}
 		}
+	}
+}
+
+void releaseDrumRackNotes(char* releaseMessages)
+{
+	int i = 0;
+	while (releaseMessages[i] >= 0)
+	{
+		MIDI.sendNoteOff((midi::DataByte) releaseMessages[i], (midi::DataByte) _drumRack.velocity, (midi::Channel) DRUM_RACK_MIDI_CHANNEL);
+		++i;
 	}
 }
 
@@ -231,46 +387,49 @@ void processCCValues()
 {
 	for (int i = 0; i <= 3; i++)  //   parse mux 0-3 
 	{
-		int changedValue = _muxStates[i].updateValue(_selectedMuxChannel);
-		if (changedValue != -1)
+		int newValue = _muxStates[i].updateValue(_selectedMuxChannel);
+		if (newValue != -1)
 		{
-			temp_led_value = changedValue;
 			midi::DataByte ccNumber = (midi::DataByte) (_ccNumberByGlobalMuxPinID[i * 8 + _selectedMuxChannel]);
-			midi::DataByte ccValue = (changedValue);
-			MIDI.sendControlChange(ccNumber, ccValue, (midi::Channel) 4);
-			/*Serial.print("mux");
-			Serial.print(i);
-			Serial.print(" pin");
-			Serial.print(int(_selectedMuxChannel));
-			Serial.print(": ");			
-			Serial.println(ccNumber);*/			
+			MIDI.sendControlChange(ccNumber, (midi::DataByte) newValue, (midi::Channel) CC_MIDI_CHANNEL);
+			//Serial.print("mux"); Serial.print(i); Serial.print(" pin"); Serial.print(int(_selectedMuxChannel)); Serial.print(": "); Serial.println(ccNumber);			
 		}
 	}
-
 }
 
-void updateRotaryEncoder() {
-	
-	if (digitalRead(ENCODER_PIN_A) == digitalRead(ENCODER_PIN_B)) {		
-		if (_selectedEngine == 0)
-			_sequencer.encoderValueChange(-1);
-		else if (_selectedEngine == 1)
-			_drumRack.encoderValueChange(-1);
-		else
+void processActionEngine()
+{
+	if (_actionEngine.active)
+	{
+		char actionCC[4];
+		_actionEngine.getCCValues(actionCC);
+		for (size_t i = 0; i < 4; i++)
 		{
-
-		}							
+			if (actionCC[i] != -1)
+			{
+				//Serial.print(millis()); Serial.print(";"); Serial.println((int)actionCC[i]);				
+				MIDI.sendControlChange((midi::DataByte) (33 + i), (midi::DataByte) actionCC[i], (midi::Channel) CC_MIDI_CHANNEL);
+			}
+		}
 	}
-	else {
-		if (_selectedEngine == 0)
-			_sequencer.encoderValueChange(1);
-		else if (_selectedEngine == 1)
-			_drumRack.encoderValueChange(1);
-		else
-		{
+}
 
-		}		
-	}
+void updateRotaryEncoder() 
+{
+	int val = (digitalRead(ENCODER_PIN_A) == digitalRead(ENCODER_PIN_B)) ? -1 : 1;	
+	switch (_selectedEngine)
+	{
+		case 0:
+			_sequencer.encoderValueChange(val);
+			break;
+		case 1:
+			_drumRack.encoderValueChange(val);
+			break;
+		case 2:
+			break;
+		default:
+			break;
+	}	
 }
 
 void selectMuxChannel(int channelNumber)
@@ -285,7 +444,15 @@ void flushLedStates()
 	digitalWrite(LED_RCLK, LOW);
 	for (int outputIndex = 31; outputIndex >= 0; outputIndex--)
 	{
-		digitalWrite(LED_DATA, _ledStates[outputIndex]);
+		bool val = _ledStates[outputIndex];
+		if (_ledStates[outputIndex] >= 2)
+		{
+			val = ((int)(millis()*(int)_ledStates[outputIndex] / 1000) % 2);
+		}
+		if ((8 <= outputIndex) && (outputIndex <= 10))
+			digitalWrite(LED_DATA, !val);
+		else
+			digitalWrite(LED_DATA, val);
 		digitalWrite(LED_SRCLK, HIGH);
 		digitalWrite(LED_SRCLK, LOW);
 	}
@@ -304,9 +471,40 @@ void noteOnCallback(byte channel, byte note, byte velocity)
 
 void clockCallback()
 {
-	/*
-	_midiClockCycle++;
-	if (_midiClockCycle % 24 == 0)
+	_midiClockPosition++; 
+	if(_midiClockPosition % 3 == 0)
+	{
+	// todo make some tuple class for the "message" with note value, and message
+		char msg[16];
+		_sequencer.setSequencePosition(_midiClockPosition / 3);
+		_sequencer.getMessagesAtCurrentPosition(msg);
+		for (size_t i = 0; i < 16; i++)
+		{
+			if ((msg[i] == Sequence::NOTE_PLAY) || (msg[i] == Sequence::NOTE_REPLAY))
+			{
+				/*if (i <= 3)  // debug noteplaying
+				{
+					_ledStates[4 + i] = 1;
+				}*/
+				digitalWrite(LED, 1);
+
+				MIDI.sendNoteOn(i + C1_OFFSET, 127, (midi::Channel) SEQUENCER_MIDI_CHANNEL);
+			}
+			else if (msg[i] == Sequence::NOTE_STOP)
+			{
+				/*if (i <= 3)  // debug noteplaying
+				{
+					_ledStates[4 + i] = 0;
+				}*/
+				digitalWrite(LED, 0);
+
+				MIDI.sendNoteOff(i + C1_OFFSET, 127, (midi::Channel) SEQUENCER_MIDI_CHANNEL);
+			}
+		}
+	}
+	
+	//Serial.write(_midiClockPosition);
+	/*if (_midiClockPosition % 24 == 0)
 	{	
 		if (_notePos >= 0)
 			MIDI.sendNoteOff(_notes[_notePos], 0, 1);   // Stop the note	
@@ -317,6 +515,19 @@ void clockCallback()
 
 void startCallback()
 {
-	
+	_midiClockPosition = -1;
 	//clockCallback();
+	_playing = true;
+}
+
+void continueCallback()
+{
+	_playing = true;
+}
+
+void stopCallback()
+{
+	_playing = false;
+	_midiClockPosition = 0;
+	_sequencer.setSequencePosition(-1);
 }

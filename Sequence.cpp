@@ -2,20 +2,28 @@
 #include <string.h>
 #include <Arduino.h>
 
-Sequence::Sequence()
+Sequence::Sequence() : swing(0.0), _currentNoteLength(8), active(false), _currentNoteLengthInterpolation(7)
 {
-	swing = 0.0;
-	_currentNoteLength = 8;
-	active = false;
+	clear();
 }
 
 void Sequence::toggleNote(char noteIndex)
+{		
+	for (int ind = noteIndex * _currentNoteLength; ind < 128; ind += 16 * _currentNoteLength)
+	{
+		setNote(ind);
+	}
+	
+	updateMessages();
+	updateLeds();	
+}
+
+void Sequence::setNote(int ind)
 {
 	bool free = true;
-	int ind = noteIndex * _currentNoteLength;
 	for (int i = ind; i < ind + _currentNoteLength; i++) // check if there are notes ahead that would overlap
 	{
-		if(notes[i] != 0)
+		if (notes[i] != 0)
 		{
 			free = false;
 			break;
@@ -34,42 +42,42 @@ void Sequence::toggleNote(char noteIndex)
 			}
 		}
 	}
-	updateMessages();
-	updateLeds();	
 }
 
 
 void Sequence::clear()
 {
-	memset(notes, 0, SEQUENCE_ENTRIES);
-	memset(messages, 0, SEQUENCE_ENTRIES);
+	//memset(notes, 0, SEQUENCE_ENTRIES);
+	//memset(messages, 0, SEQUENCE_ENTRIES);
 	active = false;
+	updateMessages();
+	updateLeds();
 }
 
 
 void Sequence::updateMessages()
-{
-	memset(ledStates, 0, SEQUENCE_LEDS);
+{	
 	memset(messages, 0, SEQUENCE_ENTRIES);
 	int lastNoteDuration = 0;
 	int lastNoteIndex = -1;
-	for (int i = 0; i < 128; i++)
+	for (int i = 0; i < 129; i++)
 	{
+		int position = i % 128;
 		if ((lastNoteIndex >= 0)&&((i - lastNoteIndex) >= lastNoteDuration))
 		{
-			messages[i] = -1;
+			messages[position] = NOTE_STOP;
 			lastNoteIndex = -1;
 			lastNoteDuration = 0;
 		}
-		if (notes[i] != 0)
+		if (notes[position] != 0)
 		{
 			active = true;
-			if ((messages[i] == -1)||((lastNoteIndex >= 0)&&( lastNoteDuration >= (i - lastNoteIndex)))) // last note was just turned of or still wants to be played
-				messages[i] = 2;
+			if ((messages[position] == -1)||((lastNoteIndex >= 0)&&( lastNoteDuration >= (i - lastNoteIndex)))) // last note was just turned of or still wants to be played
+				messages[position] = NOTE_REPLAY;
 			else
-				messages[i] = 1;
+				messages[position] = NOTE_PLAY;
 			lastNoteIndex = i;
-			lastNoteDuration = notes[i];
+			lastNoteDuration = notes[position];
 
 		}
 	}
@@ -78,6 +86,7 @@ void Sequence::updateMessages()
 
 void Sequence::updateLeds()
 {
+	memset(ledStates, 0, SEQUENCE_LEDS);
 	for (int i = 0; i < _currentNoteLength*16; i++)
 	{
 		if (notes[i] != 0)
@@ -96,8 +105,14 @@ unsigned char Sequence::getCurrentNoteLength()
 
 void Sequence::changeCurrentNoteLength(int delta)
 {
-	unsigned char newNoteLength = _currentNoteLength;
-	newNoteLength = (delta < 0) ? newNoteLength >> 1 : newNoteLength << 1;
-	_currentNoteLength = max(min(newNoteLength,8),1);
+	_currentNoteLengthInterpolation = max(min(_currentNoteLengthInterpolation + delta, 7), 0);
+	if (_currentNoteLengthInterpolation <= 1)
+		_currentNoteLength = 1;
+	else if (_currentNoteLengthInterpolation <= 3)
+		_currentNoteLength = 2;
+	else if (_currentNoteLengthInterpolation <= 5)
+		_currentNoteLength = 4;
+	else
+		_currentNoteLength = 8;
 	updateLeds();
 }

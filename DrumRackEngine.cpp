@@ -3,11 +3,9 @@
 
 
 DrumRackEngine::DrumRackEngine()	
-	: shiftDown(false)
+	: shiftDown(false), octave(4), velocity(64), _octaveInterpolation(8)
 {
 
-	octave = 0;
-	velocity = 127;
 }
 
 
@@ -35,7 +33,7 @@ char* DrumRackEngine::buttonUp(char buttonIndex)
 	
 			noteReleaseMessages[messageIndex++] = note;
 			activatedNotes[note] = false;
-		}
+		}	
 	}
 	noteReleaseMessages[messageIndex] = -1;
 	return noteReleaseMessages;
@@ -55,7 +53,6 @@ char* DrumRackEngine::releaseAll()
 		}
 	}
 	noteReleaseMessages[messageIndex] = -1;
-	updateLEDs();
 	return noteReleaseMessages;
 }
 
@@ -63,33 +60,41 @@ void DrumRackEngine::encoderValueChange(int deltaValue)
 {
 	if (shiftDown)
 	{
-		octave = max(min(octave + deltaValue, 8), 0);
+		_octaveInterpolation = min(_octaveInterpolation + deltaValue, 16);
+		_octaveInterpolation = max(_octaveInterpolation, 0);
+		octave = (int) floor(_octaveInterpolation / 2);		
 	}
 	else
 	{
 		velocity = max(min(velocity + deltaValue*8, 127), 0);
 	}
-	updateLEDs();
 }
 
-void DrumRackEngine::updateLEDs()
+void DrumRackEngine::updateLedStates(char* ledStates, const char* ledIndices)
 {
 	for (int i = 0; i < 16; i++)
 	{
-		ledStates[i] = activatedNotes[i + octave * 16];
-	}	
+		ledStates[ledIndices[i]] = activatedNotes[i + octave * 16];
+	}
 	if (shiftDown)
 	{
-		ledStates[16] = octave & 8;
-		ledStates[17] = octave & 4;
-		ledStates[18] = octave & 2;
-		ledStates[19] = octave & 1;
+
+		ledStates[ledIndices[16]] = ((0 < octave) && (octave <= 4));
+		ledStates[ledIndices[17]] = ((1 < octave) && (octave <= 5));
+		ledStates[ledIndices[18]] = ((2 < octave) && (octave <= 6));
+		ledStates[ledIndices[19]] = ((3 < octave) && (octave <= 7));
+		/*
+		ledStates[ledIndices[16]] = (((octave & 1) == 0) ? 0 : 1);
+		ledStates[ledIndices[17]] = (((octave & 2) == 0) ? 0 : 1);
+		ledStates[ledIndices[18]] = (((octave & 4) == 0) ? 0 : 1);
+		ledStates[ledIndices[19]] = (((octave & 8) == 0) ? 0 : 1);
+		*/
 	}
 	else
 	{
-		ledStates[16] = (velocity > 0);
-		ledStates[17] = (velocity > 32);
-		ledStates[18] = (velocity > 64);
-		ledStates[19] = (velocity > 96);
+		ledStates[ledIndices[16]] = (velocity > 0);
+		ledStates[ledIndices[17]] = (velocity > 32);
+		ledStates[ledIndices[18]] = (velocity > 64);
+		ledStates[ledIndices[19]] = (velocity > 96);
 	}
 }

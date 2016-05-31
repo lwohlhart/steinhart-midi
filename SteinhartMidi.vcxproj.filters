@@ -13,15 +13,17 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="_core">
+      <UniqueIdentifier>{a92be0d6-d286-4881-8ae7-f157e36729b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_libraries">
+      <UniqueIdentifier>{b9e50a08-5fc1-4701-942a-5d347f2bcd0f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="SteinhartMidi.ino" />
-    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Visual Micro\.SteinhartMidi.vsarduino.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="State.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -35,6 +37,69 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ActionButtonEngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\Arduino.h">
+      <Filter>_core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\binary.h">
+      <Filter>_core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\Client.h">
+      <Filter>_core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\HardwareSerial.h">
+      <Filter>_core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\HardwareSerial_private.h">
+      <Filter>_core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\IPAddress.h">
+      <Filter>_core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\new.h">
+      <Filter>_core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\Print.h">
+      <Filter>_core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\Printable.h">
+      <Filter>_core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\Server.h">
+      <Filter>_core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\Stream.h">
+      <Filter>_core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\Udp.h">
+      <Filter>_core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\USBAPI.h">
+      <Filter>_core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\USBCore.h">
+      <Filter>_core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\USBDesc.h">
+      <Filter>_core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\WCharacter.h">
+      <Filter>_core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\wiring_private.h">
+      <Filter>_core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\WString.h">
+      <Filter>_core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\variants\mega\pins_arduino.h">
+      <Filter>_core</Filter>
+    </ClInclude>
+    <ClInclude Include="ArpeggiatorEngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="__vm\.SteinhartMidi.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -52,6 +117,81 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ActionButtonEngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\abi.cpp">
+      <Filter>_core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\CDC.cpp">
+      <Filter>_core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\HardwareSerial.cpp">
+      <Filter>_core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\HardwareSerial0.cpp">
+      <Filter>_core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\HardwareSerial1.cpp">
+      <Filter>_core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\HardwareSerial2.cpp">
+      <Filter>_core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\HardwareSerial3.cpp">
+      <Filter>_core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\HID.cpp">
+      <Filter>_core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\hooks.c">
+      <Filter>_core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\IPAddress.cpp">
+      <Filter>_core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\main.cpp">
+      <Filter>_core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\new.cpp">
+      <Filter>_core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\Print.cpp">
+      <Filter>_core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\Stream.cpp">
+      <Filter>_core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\Tone.cpp">
+      <Filter>_core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\USBCore.cpp">
+      <Filter>_core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\WInterrupts.c">
+      <Filter>_core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\wiring.c">
+      <Filter>_core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\wiring_analog.c">
+      <Filter>_core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\wiring_digital.c">
+      <Filter>_core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\wiring_pulse.c">
+      <Filter>_core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\wiring_shift.c">
+      <Filter>_core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\WMath.cpp">
+      <Filter>_core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino\WString.cpp">
+      <Filter>_core</Filter>
+    </ClCompile>
+    <ClCompile Include="ArpeggiatorEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
