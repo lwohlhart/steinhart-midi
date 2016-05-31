@@ -481,42 +481,20 @@ void clockCallback()
 		for (size_t i = 0; i < 16; i++)
 		{
 			if ((msg[i] == Sequence::NOTE_PLAY) || (msg[i] == Sequence::NOTE_REPLAY))
-			{
-				/*if (i <= 3)  // debug noteplaying
-				{
-					_ledStates[4 + i] = 1;
-				}*/
-				digitalWrite(LED, 1);
-
+			{				
 				MIDI.sendNoteOn(i + C1_OFFSET, 127, (midi::Channel) SEQUENCER_MIDI_CHANNEL);
 			}
 			else if (msg[i] == Sequence::NOTE_STOP)
-			{
-				/*if (i <= 3)  // debug noteplaying
-				{
-					_ledStates[4 + i] = 0;
-				}*/
-				digitalWrite(LED, 0);
-
+			{			
 				MIDI.sendNoteOff(i + C1_OFFSET, 127, (midi::Channel) SEQUENCER_MIDI_CHANNEL);
 			}
 		}
-	}
-	
-	//Serial.write(_midiClockPosition);
-	/*if (_midiClockPosition % 24 == 0)
-	{	
-		if (_notePos >= 0)
-			MIDI.sendNoteOff(_notes[_notePos], 0, 1);   // Stop the note	
-		_notePos = (_notePos + 1) % 8;
-		MIDI.sendNoteOn(_notes[_notePos], 127, 1);  // Send a Note (pitch 42, velo 127 on channel 1)				
-	}*/
+	}	
 }
 
 void startCallback()
 {
 	_midiClockPosition = -1;
-	//clockCallback();
 	_playing = true;
 }
 
