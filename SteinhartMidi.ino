@@ -126,41 +126,12 @@ void setup()
 	_muxStates[7].setBinary(true);			// make shiftbutton and playbutton mux binary
 
 	MIDI.begin();	
-	//Serial.begin(31250);
-	/*_sequencer.buttonDown(0);
-	_sequencer.buttonDown(1);
-	_sequencer.buttonDown(1);
-	_sequencer.shiftDown = true;
-	_sequencer.encoderValueChange(-1);
-	_sequencer.shiftDown = false;
-	_sequencer.buttonDown(1);
-	bool* debugLedStates = _sequencer.getLedStates();
-	char* debugMessages = _sequencer.getDebugMessages();
-	for (int i = 0; i < 128; i++)
-	{
-		Serial.print((int)debugMessages[i]);
-		Serial.print("|");
-	}
-	Serial.println("");
-	for (int j = 0; j < 20; j++)
-	{
-		Serial.print((int)debugLedStates[j]);
-		Serial.print("|");
-	}
-	Serial.println("");
-	_sequencer.buttonDown(1);	
-	_sequencer.buttonDown(4);
-	_sequencer.buttonDown(5);
-	*/
-
 	
 	MIDI.setHandleClock(clockCallback);
 	MIDI.setHandleStart(startCallback);
 	MIDI.setHandleStop(stopCallback);
 	MIDI.setHandleContinue(continueCallback);
 	
-	//MIDI.setHandleNoteOn(noteOnCallback);
-	//MIDI.setInputChannel(1);	
 }
 
 void loop()
@@ -279,8 +250,7 @@ void processButtonEventsAndStateSettings()
 				{ 				
 					_actionEngine.value1Change(buttonAction);					
 					continue;
-				}
-				else if (_selectedMuxChannel == 2)
+				} else if (_selectedMuxChannel == 2)
 				{
 					_actionEngine.value2Change(buttonAction);					
 					continue;
