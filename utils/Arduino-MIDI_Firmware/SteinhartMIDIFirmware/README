@@ -1,0 +1,41 @@
+Moco for LUFA
+
+Copyright (c) by morecat_lab
+http://web.mac.com/kuwatay/
+kuwatay@nifty.com
+
+1. What	is Moco, anyway ?
+  This is a native MIDI firmware for atmega8u2 on Arcuino Uno.
+  You can replace original USB-to-serial firmware with Moco. This driver will bridge between USB-MIDI and serial-MIDI.
+  (1) The host will recognize Arduino Uno as USB-MIDI device without any driver on MacOSX and Windows XP.
+  (2) You need to write original USB-to-serial firmware back to 8u2 for the reprogramming of main CPU .(atmega328)
+
+NOTE: The original Mico/Moco is a software for USB-MIDI bridge with V-USB.
+http://web.mac.com/kuwatay/morecat_lab./MOCO-e.html
+
+2. Requirements
+(1) gcc 4.X for compile
+   I use CrossPack in OSX.
+ (2) LUFA101122 to compile & link
+ (3) Arduino UNO
+  I recommend to add ICSP connector for atmega 8u2
+ (4) AVR programmer like USBtinyISP
+  DFU Programmer should also work, but not tested.
+
+3. Specifications
+ (1) Bi-directional USB-MIDI to Serial-MIDI bridge.
+ (2) baud rate for serial MIDI is 312500Hz (standard)
+
+4. Applications
+I use PSG Shield designed by Genie-san and HKHacks-san.
+http://shield.io/psg
+
+The firmware used for 328 is as follows;
+http://shield.io/files/PSGShield_DEMO_A_V132.zip
+
+5.Liscence
+Creative Commons 2.5 Share/alike
+
+6. Contact
+kuwatay@nifty.com
+
