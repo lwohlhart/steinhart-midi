@@ -81,22 +81,22 @@ void ArpeggiatorEngine::updateLedStates(char* ledStates, const char* ledIndices)
 	if (shiftDown)
 	{
 
-		ledStates[ledIndices[16]] = ((0 < octave) && (octave <= 4));
-		ledStates[ledIndices[17]] = ((1 < octave) && (octave <= 5));
-		ledStates[ledIndices[18]] = ((2 < octave) && (octave <= 6));
-		ledStates[ledIndices[19]] = ((3 < octave) && (octave <= 7));
+		ledStates[ledIndices[23]] = ((0 < octave) && (octave <= 4));
+		ledStates[ledIndices[24]] = ((1 < octave) && (octave <= 5));
+		ledStates[ledIndices[25]] = ((2 < octave) && (octave <= 6));
+		ledStates[ledIndices[26]] = ((3 < octave) && (octave <= 7));
 		/*
-		ledStates[ledIndices[16]] = (((octave & 1) == 0) ? 0 : 1);
-		ledStates[ledIndices[17]] = (((octave & 2) == 0) ? 0 : 1);
-		ledStates[ledIndices[18]] = (((octave & 4) == 0) ? 0 : 1);
-		ledStates[ledIndices[19]] = (((octave & 8) == 0) ? 0 : 1);
+		ledStates[ledIndices[23]] = (((octave & 1) == 0) ? 0 : 1);
+		ledStates[ledIndices[24]] = (((octave & 2) == 0) ? 0 : 1);
+		ledStates[ledIndices[25]] = (((octave & 4) == 0) ? 0 : 1);
+		ledStates[ledIndices[26]] = (((octave & 8) == 0) ? 0 : 1);
 		*/
 	}
 	else
 	{
-		ledStates[ledIndices[16]] = (velocity > 0);
-		ledStates[ledIndices[17]] = (velocity > 32);
-		ledStates[ledIndices[18]] = (velocity > 64);
-		ledStates[ledIndices[19]] = (velocity > 96);
+		ledStates[ledIndices[23]] = (velocity > 0);
+		ledStates[ledIndices[24]] = (velocity > 32);
+		ledStates[ledIndices[25]] = (velocity > 64);
+		ledStates[ledIndices[26]] = (velocity > 96);
 	}
 }

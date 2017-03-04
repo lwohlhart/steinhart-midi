@@ -16,7 +16,7 @@ private:
 	double _phases[4];
 	int _selectedButton;
 	char _targetAmplitudes[4];	
-	double _currentFrequencies[4];	
+	char _currentFrequencies[4];
 	char _previousCCValues[4];
 	unsigned long _lastNoteToggleTime;
 };

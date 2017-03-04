@@ -3,8 +3,7 @@
 
 SequencerEngine::SequencerEngine() : selectedSequenceIndex(0), shiftDown(false), lastNoteToggleTime(0), _sequencePosition(-1)
 {
-	//selectedSequenceIndex = 0;
-	//shiftDown = false;
+
 }
 
 
@@ -64,10 +63,10 @@ void SequencerEngine::updateLedStates(char* ledStates, const char* ledIndices)
 	if (shiftDown)
 	{
 		ledStates[ledIndices[selectedSequenceIndex]] = 2;	
-		ledStates[ledIndices[16]] = (len >= 2);
-		ledStates[ledIndices[17]] = (len >= 4);
-		ledStates[ledIndices[18]] = (len >= 8);
-		ledStates[ledIndices[19]] = (len >= 8);
+		ledStates[ledIndices[23]] = (len >= 2);
+		ledStates[ledIndices[24]] = (len >= 4);
+		ledStates[ledIndices[25]] = (len >= 8);
+		ledStates[ledIndices[26]] = (len >= 8);
 	}
 	else
 	{
@@ -76,10 +75,10 @@ void SequencerEngine::updateLedStates(char* ledStates, const char* ledIndices)
 			int pos = ((int)(_sequencePosition / len)) % 16;
 			ledStates[ledIndices[pos]] = (ledStates[ledIndices[pos]] == 0) ? 1 : 40;
 		}
-		ledStates[ledIndices[16]] = sequences[selectedSequenceIndex].swing > 0;
-		ledStates[ledIndices[17]] = sequences[selectedSequenceIndex].swing > 0.25;
-		ledStates[ledIndices[18]] = sequences[selectedSequenceIndex].swing > 0.5;
-		ledStates[ledIndices[19]] = sequences[selectedSequenceIndex].swing > 0.75;
+		ledStates[ledIndices[23]] = sequences[selectedSequenceIndex].swing > 0;
+		ledStates[ledIndices[24]] = sequences[selectedSequenceIndex].swing > 0.25;
+		ledStates[ledIndices[25]] = sequences[selectedSequenceIndex].swing > 0.5;
+		ledStates[ledIndices[26]] = sequences[selectedSequenceIndex].swing > 0.75;
 	}
 }
 

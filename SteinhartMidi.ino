@@ -1,8 +1,8 @@
-#include "C:\Lucas\Studium\Bakk Arbeit\Workspace\libraries\MIDI\MIDI.h"
-#include "C:\Lucas\Studium\Bakk Arbeit\Workspace\libraries\MIDI\midi_Settings.h"
-#include "C:\Lucas\Studium\Bakk Arbeit\Workspace\libraries\MIDI\midi_Namespace.h"
-#include "C:\Lucas\Studium\Bakk Arbeit\Workspace\libraries\MIDI\midi_Message.h"
-#include "C:\Lucas\Studium\Bakk Arbeit\Workspace\libraries\MIDI\midi_Defs.h"
+#include <midi_Settings.h>
+#include <midi_Namespace.h>
+#include <midi_Message.h>
+#include <midi_Defs.h>
+#include <MIDI.h>	
 #include "State.h"
 #include "SequencerEngine.h"
 #include "DrumRackEngine.h"
@@ -43,6 +43,11 @@ MIDI_CREATE_DEFAULT_INSTANCE();
 
 #define LED 13   		    // LED pin on Arduino Uno
 
+#define RANGE_1_LED_INDEX 4
+#define RANGE_2_LED_INDEX 5
+#define RANGE_3_LED_INDEX 6
+#define RANGE_4_LED_INDEX 7
+
 #define ENCODER_R_LED_INDEX 8
 #define ENCODER_G_LED_INDEX 9
 #define ENCODER_B_LED_INDEX 10
@@ -55,7 +60,7 @@ MIDI_CREATE_DEFAULT_INSTANCE();
 const char _ccNumberByGlobalMuxPinID[32] = { 17, 25, 26, 18, 27, 19, 28, 20, 21, 29, 30, 22, 31, 23, 32, 24, 1, 9, 10, 2, 11, 3, 12, 4, 5, 13, 14, 6, 15, 7, 16, 8 };
 const char _buttonIDByGlobalMuxPinID[32] = { 8,  0, 1, 9, 2, 10, 3, 11, 12,  4,  5, 13,  6, 14,  7, 15, 40,	 40,  40, 40,  16, 18, 19, 17, 20, 21, 40, 40, 40, 40, 40, 40 }; // todo  enter correct ids
 //const char _ledIndexByID[32] =	{ 7, 5, 2, 1, 8, 13, 12, 9, 6, 4, 3, 0, 10, 15, 14, 11, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31 }; // todo update after Romans workover
-const char _ledIndexByID[32] = { 23, 21, 18, 17, 24, 29, 28, 25, 22, 20, 19, 16, 26, 31, 30, 27, 0, 1, 2, 3, ENCODER_R_LED_INDEX, ENCODER_G_LED_INDEX, ENCODER_B_LED_INDEX, 4, 5, 6, 7, SHIFT_LED_INDEX, PLAY_LED_INDEX, 13, 14, 15 };
+const char _ledIndexByID[32] = { 23, 21, 18, 17, 24, 29, 28, 25, 22, 20, 19, 16, 26, 31, 30, 27, 0, 1, 2, 3, ENCODER_R_LED_INDEX, ENCODER_G_LED_INDEX, ENCODER_B_LED_INDEX, RANGE_1_LED_INDEX, RANGE_2_LED_INDEX, RANGE_3_LED_INDEX, RANGE_4_LED_INDEX, SHIFT_LED_INDEX, PLAY_LED_INDEX, 13, 14, 15 };
 
 
 char _ledStates[32] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -247,12 +252,12 @@ void processButtonEventsAndStateSettings()
 			{
 				// action button engine Potis
 				if(_selectedMuxChannel == 1)
-				{ 				
-					_actionEngine.value1Change(buttonAction);					
+				{					
+					_actionEngine.value1Change(127 - buttonAction); // hack 127-buttonAction, apparently potis are flipped
 					continue;
 				} else if (_selectedMuxChannel == 2)
 				{
-					_actionEngine.value2Change(buttonAction);					
+					_actionEngine.value2Change(127 - buttonAction); // hack 127-buttonAction, apparently potis are flipped
 					continue;
 				}
 
@@ -360,6 +365,7 @@ void processCCValues()
 		int newValue = _muxStates[i].updateValue(_selectedMuxChannel);
 		if (newValue != -1)
 		{
+			//Serial.print("midicc "); Serial.println((int) newValue);
 			midi::DataByte ccNumber = (midi::DataByte) (_ccNumberByGlobalMuxPinID[i * 8 + _selectedMuxChannel]);
 			MIDI.sendControlChange(ccNumber, (midi::DataByte) newValue, (midi::Channel) CC_MIDI_CHANNEL);
 			//Serial.print("mux"); Serial.print(i); Serial.print(" pin"); Serial.print(int(_selectedMuxChannel)); Serial.print(": "); Serial.println(ccNumber);			
